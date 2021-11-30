@@ -21,6 +21,9 @@ namespace Umitengu
         });
         private readonly CommandService _commands = new();
 
+
+        public static Credentials Credentials;
+
         private Program()
         {
             _client.Log += (msg) =>
@@ -57,13 +60,13 @@ namespace Umitengu
         {
             _client.MessageReceived += HandleCommandAsync;
 
-            await _commands.AddModuleAsync<ML>(null);
+            await _commands.AddModuleAsync<MachineLearning>(null);
 
-            var credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/Credentials.json"), new JsonSerializerOptions
+            Credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/Credentials.json"), new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
-            await _client.LoginAsync(TokenType.Bot, credentials.BotToken);
+            await _client.LoginAsync(TokenType.Bot, Credentials.BotToken);
             await _client.StartAsync();
 
             await Task.Delay(-1);
