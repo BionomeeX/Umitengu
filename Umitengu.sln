@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umitengu", "Umitengu\Umitengu.csproj", "{C20ED4A8-4744-4235-A1EF-6F4521AEE8DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C20ED4A8-4744-4235-A1EF-6F4521AEE8DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C20ED4A8-4744-4235-A1EF-6F4521AEE8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C20ED4A8-4744-4235-A1EF-6F4521AEE8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C20ED4A8-4744-4235-A1EF-6F4521AEE8DC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9026A0BF-5686-4483-87C9-C537B130C9BF}
+	EndGlobalSection
+EndGlobal
