@@ -62,11 +62,11 @@ namespace Umitengu.Modules
 
                 var promptIndex = Array.IndexOf(args, "-p");
 
-                var msg = await ReplyAsync("generating : " + string.Join(" ", args));
+                var msg = await ReplyAsync("generating : " + prompt);
 
                 ProcessStartInfo si = new()
                 {
-                    Arguments = $"generate.py -p \"{pFlag}\" -s {dimension.X} {dimension.Y} -i {nbIteration}",
+                    Arguments = $"generate.py -p \"{prompt}\" -s {dimension.X} {dimension.Y} -i {nbIteration}",
                     WorkingDirectory = Program.Credentials.Path,
                     FileName = "python"
                 };
