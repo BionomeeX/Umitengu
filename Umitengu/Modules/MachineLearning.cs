@@ -62,7 +62,7 @@ namespace Umitengu.Modules
 
                 var promptIndex = Array.IndexOf(args, "-p");
 
-                var msg = await ReplyAsync("generating : " + args);
+                var msg = await ReplyAsync("generating : " + string.Join(" ", args));
 
                 ProcessStartInfo si = new()
                 {
