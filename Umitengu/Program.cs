@@ -74,7 +74,7 @@ namespace Umitengu
 
         private async Task HandleCommandAsync(SocketMessage arg)
         {
-            if (arg is not SocketUserMessage msg || arg.Author.IsBot)
+            if (arg is not SocketUserMessage msg || arg.Author.IsBot || arg.Channel is not ITextChannel)
             {
                 return;
             }
