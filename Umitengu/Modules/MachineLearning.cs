@@ -19,11 +19,11 @@ namespace Umitengu.Modules
             {
                 return def;
             }
-            if (args.Length < index + argCount)
+            if (index + argCount >= args.Length)
             {
                 return null;
             }
-            var res = args[(index + 1)..(index + argCount)];
+            var res = args[(index + 1)..(index + argCount + 1)];
             if (res.Any(x => x.StartsWith('-')))
             {
                 return null;
