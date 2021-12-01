@@ -47,16 +47,23 @@ namespace Umitengu.Modules
                 var sFlag = GetParameterArgument(args, "-s", 2, new[] { "128", "128" });
                 var iFlag = GetParameterArgument(args, "-i", 1, new[] { "500" });
 
-                if (pFlag == null || sFlag == null || iFlag == null)
+                var iiFlag = GetParameterArgument(args, "-ii", 1, new[] { "" });
+                var ipFlag = GetParameterArgument(args, "-ip", 1, new[] { "" });
+
+                if (pFlag == null || sFlag == null || iFlag == null || iiFlag == null || ipFlag == null)
                 {
                     throw new ArgumentException("Invalid input format", nameof(args));
                 }
 
                 string prompt = pFlag[0];
-                if (prompt.Contains('"'))
+                if (prompt.Contains('"') || iiFlag[0].Contains('"') || ipFlag[0].Contains('"'))
                 {
                     throw new InvalidOperationException("Your command can't contains double quotes");
                 }
+
+                var iiFile = "";
+                var ipFile = "";
+
                 (int X, int Y) dimension = (int.Parse(sFlag[0]), int.Parse(sFlag[1]));
                 int nbIteration = int.Parse(iFlag[0]);
 
@@ -66,7 +73,7 @@ namespace Umitengu.Modules
 
                 ProcessStartInfo si = new()
                 {
-                    Arguments = $"generate.py -p \"{prompt}\" -s {dimension.X} {dimension.Y} -i {nbIteration}",
+                    Arguments = $"generate.py " + (pFlag[0] == "" ? "" : $"-p \"{prompt}\" ") + (iiFile == "" ? "" : $"-ii {iiFile} ") + (ipFile == "" ? "" : $"-ip {ipFile} ") + $"-s {dimension.X} {dimension.Y} -i {nbIteration}",
                     WorkingDirectory = Program.Credentials.Path,
                     FileName = "python"
                 };
