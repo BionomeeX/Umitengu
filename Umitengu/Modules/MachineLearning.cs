@@ -62,7 +62,7 @@ namespace Umitengu.Modules
             }
 
             _isBusy = true;
-            await Program.Client.SetActivityAsync(new Game("Busy generating an image...", ActivityType.Watching));
+            await Program.Client.SetActivityAsync(new Game("an image being generated...", ActivityType.Watching));
 
             try
             {
