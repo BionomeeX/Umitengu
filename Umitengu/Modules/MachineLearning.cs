@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 
 namespace Umitengu.Modules
 {
@@ -29,6 +30,25 @@ namespace Umitengu.Modules
                 return null;
             }
             return res;
+        }
+
+        private static HttpClient Http = new();
+        private string ParseAndSaveUrl(string url, string fileName)
+        {
+            var extension = Path.GetExtension(url).Split('?')[0];
+            if (extension != ".png" && extension != ".jpg" && extension != ".jpeg")
+            {
+                throw new ArgumentException("Invalid file type " + extension);
+            }
+
+            // Download the image
+            var bytes = Http.GetByteArrayAsync(url).GetAwaiter().GetResult();
+            if (bytes.Length > 8_000_000)
+            {
+                throw new ArgumentException("Your image must be less than 8MB");
+            }
+            File.WriteAllBytes(fileName + extension, bytes);
+            return fileName + extension;
         }
 
         [Command("Generate", RunMode = RunMode.Async)]
@@ -62,7 +82,15 @@ namespace Umitengu.Modules
                 }
 
                 var iiFile = "";
+                if (iiFlag[0] != "")
+                {
+                    iiFile = ParseAndSaveUrl(iiFlag[0], "ii");
+                }
                 var ipFile = "";
+                if (ipFlag[0] != "")
+                {
+                    ipFile = ParseAndSaveUrl(ipFlag[0], "ip");
+                }
 
                 (int X, int Y) dimension = (int.Parse(sFlag[0]), int.Parse(sFlag[1]));
                 int nbIteration = int.Parse(iFlag[0]);
@@ -84,6 +112,14 @@ namespace Umitengu.Modules
                 await msg.DeleteAsync();
                 await Context.Channel.SendFileAsync(Program.Credentials.Path + "/output.png");
                 File.Delete(Program.Credentials.Path + "/output.png");
+                if (iiFile != "")
+                {
+                    File.Delete(iiFile);
+                }
+                if (ipFile != "")
+                {
+                    File.Delete(ipFile);
+                }
             }
             catch (Exception)
             {
