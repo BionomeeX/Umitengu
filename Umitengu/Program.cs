@@ -15,7 +15,7 @@ namespace Umitengu
             => await new Program().MainAsync();
 
 
-        private readonly DiscordSocketClient _client = new(new DiscordSocketConfig
+        public static readonly DiscordSocketClient Client = new(new DiscordSocketConfig
         {
             LogLevel = LogSeverity.Verbose,
         });
@@ -26,7 +26,7 @@ namespace Umitengu
 
         private Program()
         {
-            _client.Log += (msg) =>
+            Client.Log += (msg) =>
             {
                 Console.WriteLine(msg);
                 return Task.CompletedTask;
@@ -58,18 +58,25 @@ namespace Umitengu
 
         private async Task MainAsync()
         {
-            _client.MessageReceived += HandleCommandAsync;
+            Client.MessageReceived += HandleCommandAsync;
+            Client.Ready += Ready;
 
             await _commands.AddModuleAsync<MachineLearning>(null);
+            await _commands.AddModuleAsync<Communication>(null);
 
             Credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/Credentials.json"), new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
-            await _client.LoginAsync(TokenType.Bot, Credentials.BotToken);
-            await _client.StartAsync();
+            await Client.LoginAsync(TokenType.Bot, Credentials.BotToken);
+            await Client.StartAsync();
 
             await Task.Delay(-1);
+        }
+
+        private async Task Ready()
+        {
+            await Client.SetActivityAsync(new Game("u.help", ActivityType.CustomStatus));
         }
 
         private async Task HandleCommandAsync(SocketMessage arg)
@@ -79,9 +86,9 @@ namespace Umitengu
                 return;
             }
             int pos = 0;
-            if (msg.HasMentionPrefix(_client.CurrentUser, ref pos) || msg.HasStringPrefix("u.", ref pos))
+            if (msg.HasMentionPrefix(Client.CurrentUser, ref pos) || msg.HasStringPrefix("u.", ref pos))
             {
-                SocketCommandContext context = new(_client, msg);
+                SocketCommandContext context = new(Client, msg);
                 var result = await _commands.ExecuteAsync(context, pos, null);
                 if (!result.IsSuccess)
                 {

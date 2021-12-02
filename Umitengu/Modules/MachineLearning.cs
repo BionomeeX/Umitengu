@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using Discord;
 
 namespace Umitengu.Modules
 {
@@ -61,6 +62,7 @@ namespace Umitengu.Modules
             }
 
             _isBusy = true;
+            await Program.Client.SetActivityAsync(new Game("Busy generating an image...", ActivityType.CustomStatus));
 
             try
             {
@@ -125,10 +127,12 @@ namespace Umitengu.Modules
             catch (Exception)
             {
                 _isBusy = false;
+                await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.CustomStatus));
                 throw;
             }
 
             _isBusy = false;
+            await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.CustomStatus));
         }
     }
 }
