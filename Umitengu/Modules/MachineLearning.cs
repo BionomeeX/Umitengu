@@ -47,8 +47,9 @@ namespace Umitengu.Modules
             {
                 throw new ArgumentException("Your image must be less than 8MB");
             }
-            File.WriteAllBytes(fileName + extension, bytes);
-            return fileName + extension;
+            var path = Program.Credentials.Path + (Program.Credentials.Path.EndsWith("/") ? "" : "/") + fileName + extension;
+            File.WriteAllBytes(path, bytes);
+            return path;
         }
 
         [Command("Generate", RunMode = RunMode.Async)]
