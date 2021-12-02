@@ -76,7 +76,7 @@ namespace Umitengu
 
         private async Task Ready()
         {
-            await Client.SetActivityAsync(new Game("u.help", ActivityType.CustomStatus));
+            await Client.SetActivityAsync(new Game("u.help", ActivityType.Watching));
         }
 
         private async Task HandleCommandAsync(SocketMessage arg)

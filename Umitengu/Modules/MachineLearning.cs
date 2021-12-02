@@ -62,7 +62,7 @@ namespace Umitengu.Modules
             }
 
             _isBusy = true;
-            await Program.Client.SetActivityAsync(new Game("Busy generating an image...", ActivityType.CustomStatus));
+            await Program.Client.SetActivityAsync(new Game("Busy generating an image...", ActivityType.Watching));
 
             try
             {
@@ -127,12 +127,12 @@ namespace Umitengu.Modules
             catch (Exception)
             {
                 _isBusy = false;
-                await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.CustomStatus));
+                await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.Watching));
                 throw;
             }
 
             _isBusy = false;
-            await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.CustomStatus));
+            await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.Watching));
         }
     }
 }
