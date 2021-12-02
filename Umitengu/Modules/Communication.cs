@@ -6,6 +6,7 @@ namespace Umitengu.Modules
 {
     public class Communication : ModuleBase
     {
+        [Command("Help")]
         private async Task HelpAsync()
         {
             await ReplyAsync(embed: new EmbedBuilder
