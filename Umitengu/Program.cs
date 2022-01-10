@@ -61,6 +61,7 @@ namespace Umitengu
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine(ex);
                         await arg.ModifyOriginalResponseAsync(x => x.Embed = new EmbedBuilder
                         {
                             Color = Color.Red,

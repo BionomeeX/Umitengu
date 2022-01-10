@@ -99,12 +99,12 @@ namespace Umitengu.Modules
 
             try
             {
-                var prompt = (string)ctx.Data.Options.First(x => x.Name == "prompt").Value ?? "";
-                var width = (int?)ctx.Data.Options.First(x => x.Name == "width").Value ?? 128;
-                var height = (int?)ctx.Data.Options.First(x => x.Name == "height").Value ?? 128;
-                var nbGen = (int?)ctx.Data.Options.First(x => x.Name == "nbgen").Value ?? 500;
-                var startImg = (string)ctx.Data.Options.First(x => x.Name == "startimg").Value ?? "";
-                var promptimg = (string)ctx.Data.Options.First(x => x.Name == "promptimg").Value ?? "";
+                var prompt = (string)(ctx.Data.Options.FirstOrDefault(x => x.Name == "prompt")?.Value ?? "");
+                var width = (long?)(ctx.Data.Options.FirstOrDefault(x => x.Name == "width")?.Value ?? 128L);
+                var height = (long?)(ctx.Data.Options.FirstOrDefault(x => x.Name == "height")?.Value ?? 128L);
+                var nbGen = (long?)(ctx.Data.Options.FirstOrDefault(x => x.Name == "nbgen")?.Value ?? 500L);
+                var startImg = (string)(ctx.Data.Options.FirstOrDefault(x => x.Name == "startimg")?.Value ?? "");
+                var promptimg = (string)(ctx.Data.Options.FirstOrDefault(x => x.Name == "promptimg")?.Value ?? "");
 
                 var iiFile = "";
                 if (startImg != "")
