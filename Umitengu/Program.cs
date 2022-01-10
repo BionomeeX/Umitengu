@@ -19,7 +19,6 @@ namespace Umitengu
         {
             LogLevel = LogSeverity.Verbose,
         });
-        private readonly CommandService _commands = new();
 
 
         public static Credentials Credentials;
@@ -61,9 +60,6 @@ namespace Umitengu
             Client.MessageReceived += HandleCommandAsync;
             Client.Ready += Ready;
 
-            await _commands.AddModuleAsync<MachineLearning>(null);
-            await _commands.AddModuleAsync<Communication>(null);
-
             Credentials = JsonSerializer.Deserialize<Credentials>(File.ReadAllText("Keys/Credentials.json"), new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -76,29 +72,7 @@ namespace Umitengu
 
         private async Task Ready()
         {
-            await Client.SetActivityAsync(new Game("u.help", ActivityType.Watching));
-        }
-
-        private async Task HandleCommandAsync(SocketMessage arg)
-        {
-            if (arg is not SocketUserMessage msg || arg.Author.IsBot || arg.Channel is not ITextChannel)
-            {
-                return;
-            }
-            int pos = 0;
-            if (msg.HasMentionPrefix(Client.CurrentUser, ref pos) || msg.HasStringPrefix("u.", ref pos))
-            {
-                SocketCommandContext context = new(Client, msg);
-                var result = await _commands.ExecuteAsync(context, pos, null);
-                if (!result.IsSuccess)
-                {
-                    if (result.Error == CommandError.UnmetPrecondition || result.Error == CommandError.BadArgCount
-                        || result.Error == CommandError.ParseFailed)
-                    {
-                        await msg.Channel.SendMessageAsync(result.ErrorReason);
-                    }
-                }
-            }
+            await Program.Client.SetActivityAsync(new Game("Ready", ActivityType.Watching));
         }
     }
 }

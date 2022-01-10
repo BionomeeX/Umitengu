@@ -6,32 +6,32 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using Discord;
+using Discord.WebSocket;
 
 namespace Umitengu.Modules
 {
     public class MachineLearning : ModuleBase
     {
-
-        public static bool _isBusy;
-
-        private string[] GetParameterArgument(string[] args, string flag, int argCount, string[] def)
+        public static async Task<SlashCommandProperties> GetCommand()
         {
-            var index = Array.IndexOf(args, flag);
-            if (index == -1)
+            return new SlashCommandBuilder()
             {
-                return def;
-            }
-            if (index + argCount >= args.Length)
-            {
-                return null;
-            }
-            var res = args[(index + 1)..(index + argCount + 1)];
-            if (res.Any(x => x.StartsWith('-')))
-            {
-                return null;
-            }
-            return res;
+                Name = "generate",
+                Description = "Generate an image using machine learning",
+                Options = new()
+                {
+                    new SlashCommandOptionBuilder()
+                    {
+                        Name = "prompt",
+                        Description = "Starting prompt",
+                        Type = ApplicationCommandOptionType.String,
+                        IsRequired = false
+                    }
+                }
+            }.Build();
         }
+
+        private static bool _isBusy;
 
         private static HttpClient Http = new();
         private string ParseAndSaveUrl(string url, string fileName)
@@ -53,8 +53,7 @@ namespace Umitengu.Modules
             return path;
         }
 
-        [Command("Generate", RunMode = RunMode.Async)]
-        public async Task Generate(params string[] args)
+        public async Task Generate(SocketSlashCommand ctx)
         {
             if (_isBusy) {
                 await ReplyAsync("Already in use, please try later ...");
@@ -62,54 +61,36 @@ namespace Umitengu.Modules
             }
 
             _isBusy = true;
-            await Program.Client.SetActivityAsync(new Game("an image being generated...", ActivityType.Watching));
+            await Program.Client.SetActivityAsync(new Game("An image being generated...", ActivityType.Watching));
 
             try
             {
-                var pFlag = GetParameterArgument(args, "-p", 1, new[] { "" });
-                var sFlag = GetParameterArgument(args, "-s", 2, new[] { "128", "128" });
-                var iFlag = GetParameterArgument(args, "-i", 1, new[] { "500" });
-
-                var iiFlag = GetParameterArgument(args, "-ii", 1, new[] { "" });
-                var ipFlag = GetParameterArgument(args, "-ip", 1, new[] { "" });
-
-                if (pFlag == null || sFlag == null || iFlag == null || iiFlag == null || ipFlag == null)
-                {
-                    throw new ArgumentException("Invalid input format", nameof(args));
-                }
-
-                string prompt = pFlag[0];
-                if (prompt.Contains('"') || iiFlag[0].Contains('"') || ipFlag[0].Contains('"'))
-                {
-                    throw new InvalidOperationException("Your command can't contains double quotes");
-                }
+                var prompt = (string)ctx.Data.Options.First(x => x.Name == "prompt").Value ?? "";
+                var width = (int?)ctx.Data.Options.First(x => x.Name == "width").Value ?? 128;
+                var height = (int?)ctx.Data.Options.First(x => x.Name == "height").Value ?? 128;
+                var nbGen = (int?)ctx.Data.Options.First(x => x.Name == "nbgen").Value ?? 500;
+                var startImg = (string)ctx.Data.Options.First(x => x.Name == "startimg").Value ?? "";
+                var helpImg = (string)ctx.Data.Options.First(x => x.Name == "helpimg").Value ?? "";
 
                 var iiFile = "";
-                if (iiFlag[0] != "")
+                if (startImg != "")
                 {
-                    iiFile = ParseAndSaveUrl(iiFlag[0], "ii");
+                    iiFile = ParseAndSaveUrl(startImg, "ii");
                 }
                 var ipFile = "";
-                if (ipFlag[0] != "")
+                if (helpImg != "")
                 {
-                    ipFile = ParseAndSaveUrl(ipFlag[0], "ip");
+                    ipFile = ParseAndSaveUrl(helpImg, "ip");
                 }
-
-                (int X, int Y) dimension = (int.Parse(sFlag[0]), int.Parse(sFlag[1]));
-                int nbIteration = int.Parse(iFlag[0]);
-
-                var promptIndex = Array.IndexOf(args, "-p");
 
                 var msg = await ReplyAsync("generating : " + prompt);
 
                 ProcessStartInfo si = new()
                 {
-                    Arguments = $"generate.py " + (pFlag[0] == "" ? "" : $"-p \"{prompt}\" ") + (iiFile == "" ? "" : $"-ii {iiFile} ") + (ipFile == "" ? "" : $"-ip {ipFile} ") + $"-s {dimension.X} {dimension.Y} -i {nbIteration}",
+                    Arguments = $"generate.py " + (prompt == "" ? "" : $"-p \"{prompt}\" ") + (iiFile == "" ? "" : $"-ii {iiFile} ") + (ipFile == "" ? "" : $"-ip {ipFile} ") + $"-s {width} {height} -i {nbGen}",
                     WorkingDirectory = Program.Credentials.Path,
                     FileName = "python"
                 };
-
-                Console.WriteLine(args);
 
                 Process.Start(si).WaitForExit();
                 await msg.DeleteAsync();
@@ -127,12 +108,12 @@ namespace Umitengu.Modules
             catch (Exception)
             {
                 _isBusy = false;
-                await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.Watching));
+                await Program.Client.SetActivityAsync(new Game("Ready", ActivityType.Watching));
                 throw;
             }
 
             _isBusy = false;
-            await Program.Client.SetActivityAsync(new Game("u.help", ActivityType.Watching));
+            await Program.Client.SetActivityAsync(new Game("Ready", ActivityType.Watching));
         }
     }
 }
