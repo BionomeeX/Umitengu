@@ -1,5 +1,4 @@
-﻿using Discord.Commands;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,9 +9,9 @@ using Discord.WebSocket;
 
 namespace Umitengu.Modules
 {
-    public class MachineLearning : ModuleBase
+    public class MachineLearning
     {
-        public static async Task<SlashCommandProperties> GetCommand()
+        public static SlashCommandProperties GetCommand()
         {
             return new SlashCommandBuilder()
             {
@@ -26,6 +25,41 @@ namespace Umitengu.Modules
                         Description = "Starting prompt",
                         Type = ApplicationCommandOptionType.String,
                         IsRequired = false
+                    },
+                    new SlashCommandOptionBuilder()
+                    {
+                        Name = "width",
+                        Description = "Width of the image",
+                        Type = ApplicationCommandOptionType.Integer,
+                        IsRequired = false
+                    },
+                    new SlashCommandOptionBuilder()
+                    {
+                        Name = "height",
+                        Description = "Height of the image",
+                        Type = ApplicationCommandOptionType.Integer,
+                        IsRequired = false
+                    },
+                    new SlashCommandOptionBuilder()
+                    {
+                        Name = "nbgen",
+                        Description = "Number of iterations to generate the image with",
+                        Type = ApplicationCommandOptionType.Integer,
+                        IsRequired = false
+                    },
+                    new SlashCommandOptionBuilder()
+                    {
+                        Name = "startimg",
+                        Description = "Starting image",
+                        Type = ApplicationCommandOptionType.String,
+                        IsRequired = false
+                    },
+                    new SlashCommandOptionBuilder()
+                    {
+                        Name = "promptimg",
+                        Description = "Image prompt",
+                        Type = ApplicationCommandOptionType.String,
+                        IsRequired = false
                     }
                 }
             }.Build();
@@ -34,7 +68,7 @@ namespace Umitengu.Modules
         private static bool _isBusy;
 
         private static HttpClient Http = new();
-        private string ParseAndSaveUrl(string url, string fileName)
+        private static string ParseAndSaveUrl(string url, string fileName)
         {
             var extension = Path.GetExtension(url).Split('?')[0];
             if (extension != ".png" && extension != ".jpg" && extension != ".jpeg")
@@ -53,10 +87,10 @@ namespace Umitengu.Modules
             return path;
         }
 
-        public async Task Generate(SocketSlashCommand ctx)
+        public static async Task GenerateAsync(SocketSlashCommand ctx)
         {
             if (_isBusy) {
-                await ReplyAsync("Already in use, please try later ...");
+                await ctx.ModifyOriginalResponseAsync(x => x.Content = "Already in use, please try later ...");
                 return;
             }
 
@@ -70,7 +104,7 @@ namespace Umitengu.Modules
                 var height = (int?)ctx.Data.Options.First(x => x.Name == "height").Value ?? 128;
                 var nbGen = (int?)ctx.Data.Options.First(x => x.Name == "nbgen").Value ?? 500;
                 var startImg = (string)ctx.Data.Options.First(x => x.Name == "startimg").Value ?? "";
-                var helpImg = (string)ctx.Data.Options.First(x => x.Name == "helpimg").Value ?? "";
+                var promptimg = (string)ctx.Data.Options.First(x => x.Name == "promptimg").Value ?? "";
 
                 var iiFile = "";
                 if (startImg != "")
@@ -78,12 +112,12 @@ namespace Umitengu.Modules
                     iiFile = ParseAndSaveUrl(startImg, "ii");
                 }
                 var ipFile = "";
-                if (helpImg != "")
+                if (promptimg != "")
                 {
-                    ipFile = ParseAndSaveUrl(helpImg, "ip");
+                    ipFile = ParseAndSaveUrl(promptimg, "ip");
                 }
 
-                var msg = await ReplyAsync("generating : " + prompt);
+                await ctx.ModifyOriginalResponseAsync(x => x.Content = "Generating : " + prompt);
 
                 ProcessStartInfo si = new()
                 {
@@ -93,8 +127,8 @@ namespace Umitengu.Modules
                 };
 
                 Process.Start(si).WaitForExit();
-                await msg.DeleteAsync();
-                await Context.Channel.SendFileAsync(Program.Credentials.Path + "/output.png");
+                await ctx.DeleteOriginalResponseAsync();
+                await ctx.FollowupWithFileAsync(Program.Credentials.Path + "/output.png");
                 File.Delete(Program.Credentials.Path + "/output.png");
                 if (iiFile != "")
                 {
