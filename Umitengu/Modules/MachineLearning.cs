@@ -127,7 +127,6 @@ namespace Umitengu.Modules
                 };
 
                 Process.Start(si).WaitForExit();
-                await ctx.DeleteOriginalResponseAsync();
                 await ctx.FollowupWithFileAsync(Program.Credentials.Path + "/output.png");
                 File.Delete(Program.Credentials.Path + "/output.png");
                 if (iiFile != "")
